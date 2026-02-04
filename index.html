@@ -316,7 +316,7 @@
             color: #8E8E93;
         }
 
-        /* 密码弹窗特殊样式 - 已移除提示 */
+        /* 密码弹窗样式 */
         .password-container {
             background: rgba(242, 242, 247, 0.8);
             border-radius: 1.2rem;
@@ -378,7 +378,7 @@
             gap: 0.4rem;
         }
 
-        /* ===== 内置浏览器 - 固定头部优化 ===== */
+        /* 内置浏览器 - 仅百度解析站使用 */
         .browser-overlay {
             position: fixed;
             inset: 0;
@@ -394,7 +394,6 @@
             transform: translateY(0);
         }
 
-        /* 关键修改：头部使用 fixed 定位，始终固定在视口顶端 */
         .browser-header {
             position: fixed;
             top: 0;
@@ -408,7 +407,7 @@
             align-items: center;
             gap: 0.8rem;
             border-bottom: 1px solid rgba(0,0,0,0.1);
-            height: 60px; /* 固定高度 */
+            height: 60px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
@@ -456,10 +455,9 @@
             flex-shrink: 0;
         }
 
-        /* iframe 容器：使用 margin-top 为 header 留出空间 */
         .browser-frame-container {
             flex: 1;
-            margin-top: 60px; /* 与 header 高度相同 */
+            margin-top: 60px;
             position: relative;
             overflow: hidden;
             background: white;
@@ -472,12 +470,12 @@
             display: block;
         }
 
-        /* Toast */
+        /* Toast - 底部中间 */
         #toast {
             position: fixed;
-            top: 50%;
+            bottom: 100px;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             background: rgba(0,0,0,0.8);
             color: white;
             padding: 1rem 1.5rem;
@@ -495,10 +493,27 @@
         #toast.show {
             opacity: 1;
             visibility: visible;
+            animation: toastSlideUp 0.3s ease;
+        }
+
+        @keyframes toastSlideUp {
+            from { 
+                opacity: 0; 
+                transform: translateX(-50%) translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(-50%) translateY(0); 
+            }
         }
 
         @media (min-width: 768px) {
             .app-container { padding: 2rem 1.5rem; }
+        }
+
+        /* 去掉所有 outline */
+        *:focus {
+            outline: none !important;
         }
     </style>
 </head>
@@ -524,8 +539,7 @@
             <div class="button-name">全资源</div>
             <div class="button-tag">分类合集</div>
         </div>
-        <!-- 修改：改为内置浏览器打开 -->
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZYCq0tErl5', '实用软件')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZYCq0tErl5')">
             <div class="button-icon green"><i class="fas fa-laptop-code"></i></div>
             <div class="button-name">实用软件</div>
             <div class="button-tag">精品破解</div>
@@ -535,37 +549,37 @@
             <div class="button-name">老司机</div>
             <div class="button-tag">黄色小玩意</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZYCq0tEPqe', 'VPN资源')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZYCq0tEPqe')">
             <div class="button-icon dark-blue"><i class="fas fa-globe-americas"></i></div>
             <div class="button-name">VPN</div>
             <div class="button-tag">网络加速</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZXpjCvtWww', '绅士壁纸')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXpjCvtWww')">
             <div class="button-icon pink"><i class="fas fa-image"></i></div>
             <div class="button-name">绅士壁纸</div>
             <div class="button-tag">绅士图片</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZXSmDnDp67', '影音娱乐')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXSmDnDp67')">
             <div class="button-icon purple"><i class="fas fa-film"></i></div>
             <div class="button-name">影音娱乐</div>
             <div class="button-tag">影视音乐</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZZesFZFmhv', '大小型游戏')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXpjCvuhdi')">
             <div class="button-icon cyan"><i class="fas fa-dice"></i></div>
             <div class="button-name">大小型游戏</div>
             <div class="button-tag">游戏合集</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZYZryXDsry', 'iOS签名证书')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZZesFZumxu')">
             <div class="button-icon blue"><i class="fas fa-signature"></i></div>
             <div class="button-name">iOS签名证书</div>
             <div class="button-tag">签名工具</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZXSmDnDz0o', '资源更新文档')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXSmDnDz0o')">
             <div class="button-icon green"><i class="fas fa-file-alt"></i></div>
             <div class="button-name">资源更新文档</div>
             <div class="button-tag">已停止更新</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZXpjCvuw2l', '网盘帮下载')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXpjCvuw2l')">
             <div class="button-icon purple"><i class="fas fa-download"></i></div>
             <div class="button-name">各大网盘帮下载</div>
             <div class="button-tag">帮下载</div>
@@ -574,18 +588,18 @@
 
     <h2 class="card-title">网盘提速 <span class="card-count">3</span></h2>
     <div class="grid-layout special">
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZXyki8UVu8', '网盘工具')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXyki8UVu8')">
             <div class="button-icon orange"><i class="fas fa-wrench"></i></div>
             <div class="button-name">网盘工具</div>
             <div class="button-tag">必备增强</div>
         </div>
-        <!-- 百度解析站：先检查密码 -->
+        <!-- 百度解析站：先验证密码，再内置浏览器 -->
         <div class="big-button" onclick="checkBaiduAccess()">
             <div class="button-icon red"><i class="fas fa-link"></i></div>
             <div class="button-name">百度解析站</div>
             <div class="button-tag">高速直链</div>
         </div>
-        <div class="big-button" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZXpjCsUd2v', '网盘教程')">
+        <div class="big-button" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXpjCsUd2v')">
             <div class="button-icon green"><i class="fas fa-book"></i></div>
             <div class="button-name">网盘教程</div>
             <div class="button-tag">避坑指南</div>
@@ -615,7 +629,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header-title">资源类别</div>
         <div class="ios-list">
-            <div class="ios-list-item" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZWof8pjtb3', '软件分享')">
+            <div class="ios-list-item" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZWof8pjtb3')">
                 <div class="list-icon green"><i class="fas fa-laptop"></i></div>
                 <div style="flex:1">
                     <div class="list-text-main">软件分享</div>
@@ -623,7 +637,7 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color: #C7C7CC;"></i>
             </div>
-            <div class="ios-list-item" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZWNgWHfNwr', '网盘工具')">
+            <div class="ios-list-item" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZWNgWHfNwr')">
                 <div class="list-icon blue"><i class="fas fa-tools"></i></div>
                 <div style="flex:1">
                     <div class="list-text-main">网盘工具</div>
@@ -640,7 +654,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header-title">选择频道</div>
         <div class="ios-list">
-            <div class="ios-list-item" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sNZXpjCvuYya', '看片软件')">
+            <div class="ios-list-item" onclick="go('https://yun.139.com/shareweb/#/w/i/2sNZXpjCvuYya')">
                 <div class="list-icon green"><i class="fas fa-video"></i></div>
                 <div style="flex:1">
                     <div class="list-text-main">看片软件</div>
@@ -648,7 +662,6 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color: #C7C7CC;"></i>
             </div>
-            <!-- 黄游游戏：点击复制并提示 -->
             <div class="ios-list-item" onclick="copyHuangYou()">
                 <div class="list-icon orange"><i class="fas fa-gamepad"></i></div>
                 <div style="flex:1">
@@ -666,7 +679,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header-title">详细信息</div>
         <div class="ios-list">
-            <div class="ios-list-item" onclick="openBrowser('https://link3.cc/xakjyxgs', '官方网站')">
+            <div class="ios-list-item" onclick="go('https://link3.cc/xakjyxgs')">
                 <div class="list-icon dark-blue"><i class="fas fa-globe"></i></div>
                 <div style="flex:1">
                     <div class="list-text-main">官网地址</div>
@@ -703,7 +716,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header-title">选择线路</div>
         <div class="ios-list">
-            <div class="ios-list-item" onclick="openBrowser('https://analysis.icy6.cn', '百度解析 - 线路01')">
+            <div class="ios-list-item" onclick="openBaiduBrowser('https://analysis.icy6.cn', '线路 01')">
                 <div class="list-icon blue"><i class="fas fa-rocket"></i></div>
                 <div style="flex:1">
                     <div class="list-text-main">线路 01</div>
@@ -711,7 +724,7 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color: #C7C7CC;"></i>
             </div>
-            <div class="ios-list-item" onclick="openBrowser('https://kdown.moiu.cn/free/#/index', '百度解析 - 线路02')">
+            <div class="ios-list-item" onclick="openBaiduBrowser('https://kdown.moiu.cn/free/#/index', '线路 02')">
                 <div class="list-icon orange"><i class="fas fa-bolt"></i></div>
                 <div style="flex:1">
                     <div class="list-text-main">线路 02</div>
@@ -723,7 +736,7 @@
     </div>
 </div>
 
-<!-- 密码验证弹窗 - 已移除密码提示 -->
+<!-- 密码验证弹窗 -->
 <div class="modal-overlay" id="passwordModal" onclick="closePasswordModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header-title">访问验证</div>
@@ -734,7 +747,7 @@
             <input type="password" class="password-input" id="pwdInput" placeholder="请输入访问密码" maxlength="20">
             <div class="password-actions">
                 <button class="ios-btn-primary" onclick="verifyPassword()">确认</button>
-                <a href="#" onclick="openBrowser('https://yun.139.com/shareweb/#/w/i/2sUfC9rgJxUk2', '获取密码'); return false;" class="ios-btn-secondary">
+                <a href="#" onclick="go('https://yun.139.com/shareweb/#/w/i/2sUfBuomz5x8y'); return false;" class="ios-btn-secondary">
                     <i class="fas fa-key"></i> 获取访问密码
                 </a>
             </div>
@@ -742,18 +755,17 @@
     </div>
 </div>
 
-<!-- 内置浏览器 - 结构已优化 -->
+<!-- 内置浏览器 - 仅百度解析站使用 -->
 <div class="browser-overlay" id="browserOverlay">
     <div class="browser-header">
-        <button class="browser-back" onclick="closeBrowser()">
+        <button class="browser-back" onclick="closeBaiduBrowser()">
             <i class="fas fa-chevron-left"></i>
         </button>
-        <div class="browser-address-bar" id="browserAddress">安全浏览</div>
-        <button class="browser-refresh" onclick="refreshBrowser()">
+        <div class="browser-address-bar" id="browserAddress">百度解析站</div>
+        <button class="browser-refresh" onclick="refreshBaiduBrowser()">
             <i class="fas fa-redo"></i>
         </button>
     </div>
-    <!-- iframe 容器独立 -->
     <div class="browser-frame-container">
         <iframe class="browser-frame" id="browserFrame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation"></iframe>
     </div>
@@ -762,47 +774,19 @@
 <div id="toast"></div>
 
 <script>
-    // ========== 配置区域 ==========
+    // ========== 配置 ==========
     const CONFIG = {
         password: 'Tsinho2255',
-        passwordVersion: 'v1',  // 修改密码时改成 v2，所有用户需重新验证
-        storageKey: 'baidu_auth',
-        huangYouUrl: 'https://drive.uc.cn/s/fb9fb0ca4e4f4'
+        passwordVersion: '2.0',
+        storageKey: 'tsinho_baidu_auth'
     };
 
-    let currentRoute = '';
-    let currentRouteName = '';
-
-    // ========== 全站内置浏览器 ==========
-    function openBrowser(url, title) {
-        const overlay = document.getElementById('browserOverlay');
-        const frame = document.getElementById('browserFrame');
-        const address = document.getElementById('browserAddress');
-        
-        address.textContent = title || '资源浏览';
-        frame.src = url;
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    // ========== 通用跳转（外部浏览器）==========
+    function go(url) {
+        window.location.href = url;
     }
 
-    function closeBrowser() {
-        const overlay = document.getElementById('browserOverlay');
-        const frame = document.getElementById('browserFrame');
-        
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-        
-        setTimeout(() => { 
-            frame.src = 'about:blank'; 
-        }, 300);
-    }
-
-    function refreshBrowser() {
-        const frame = document.getElementById('browserFrame');
-        frame.src = frame.src;
-    }
-
-    // ========== 原有弹窗功能（保持兼容） ==========
+    // ========== 弹窗管理 ==========
     function openAllResModal() {
         document.getElementById('allResModal').classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -851,30 +835,23 @@
         }
     }
 
-    // ========== 黄游游戏专用复制 ==========
-    function copyHuangYou() {
-        const url = CONFIG.huangYouUrl;
-        
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(url).then(() => {
-                showToast('链接已复制<br>请到浏览器粘贴访问');
-                closeLaoSiJiModal();  // 自动关闭弹窗
-            }).catch(() => {
-                fallbackCopy(url);
-            });
-        } else {
-            fallbackCopy(url);
+    function openPasswordModal() {
+        const modal = document.getElementById('passwordModal');
+        modal.classList.add('active');
+        document.getElementById('pwdInput').value = '';
+        setTimeout(() => document.getElementById('pwdInput').focus(), 300);
+    }
+
+    function closePasswordModal(e) {
+        if (!e || e.target.id === 'passwordModal') {
+            document.getElementById('passwordModal').classList.remove('active');
         }
     }
 
-    function fallbackCopy(url) {
-        const input = document.createElement('textarea');
-        input.value = url;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-        showToast('链接已复制<br>请到浏览器粘贴访问');
+    // ========== 复制功能 ==========
+    function copyHuangYou() {
+        const url = 'https://drive.uc.cn/s/fb9fb0ca4e4f4';
+        copyToClipboard(url, '链接已复制<br>请到浏览器粘贴访问');
         closeLaoSiJiModal();
     }
 
@@ -885,20 +862,29 @@
             case 'qq': text = '1625862774'; break;
             case 'qqgroup': text = '1065975237'; break;
         }
-        
-        if (navigator.clipboard) {
+        copyToClipboard(text, '已复制：' + text);
+    }
+
+    function copyToClipboard(text, successMsg) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(() => {
-                showToast('已复制：' + text);
+                showToast(successMsg);
+            }).catch(() => {
+                fallbackCopy(text, successMsg);
             });
         } else {
-            const input = document.createElement('textarea');
-            input.value = text;
-            document.body.appendChild(input);
-            input.select();
-            document.execCommand('copy');
-            document.body.removeChild(input);
-            showToast('已复制：' + text);
+            fallbackCopy(text, successMsg);
         }
+    }
+
+    function fallbackCopy(text, successMsg) {
+        const input = document.createElement('textarea');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showToast(successMsg);
     }
 
     // ========== 百度解析站密码系统 ==========
@@ -928,36 +914,28 @@
         }
     }
 
-    function openPasswordModal() {
-        const modal = document.getElementById('passwordModal');
-        modal.classList.add('active');
-        document.getElementById('pwdInput').value = '';
-        setTimeout(() => document.getElementById('pwdInput').focus(), 300);
-    }
-
-    function closePasswordModal(e) {
-        if (!e || e.target.id === 'passwordModal') {
-            document.getElementById('passwordModal').classList.remove('active');
-        }
-    }
-
     function verifyPassword() {
         const input = document.getElementById('pwdInput').value.trim();
         
         if (input === CONFIG.password) {
             saveVerified();
             closePasswordModal();
-            showToast('验证成功');
             document.getElementById('pwdInput').value = '';
+            
+            const authorizedTime = new Date().toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            showToast('欢迎回来！<br>授权日期：' + authorizedTime);
             
             setTimeout(() => {
                 openBaiduModal();
-            }, 500);
+            }, 600);
         } else {
             showToast('密码错误');
             document.getElementById('pwdInput').value = '';
             
-            // 错误震动
             const container = document.querySelector('.password-container');
             container.style.animation = 'shake 0.5s';
             setTimeout(() => {
@@ -966,12 +944,42 @@
         }
     }
 
-    // 回车提交密码
     document.getElementById('pwdInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') verifyPassword();
     });
 
-    // ========== 工具函数 ==========
+    // ========== 内置浏览器 - 仅百度解析站 ==========
+    function openBaiduBrowser(url, title) {
+        closeBaiduModal();
+        
+        const overlay = document.getElementById('browserOverlay');
+        const frame = document.getElementById('browserFrame');
+        const address = document.getElementById('browserAddress');
+        
+        address.textContent = title || '百度解析站';
+        frame.src = url;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeBaiduBrowser() {
+        const overlay = document.getElementById('browserOverlay');
+        const frame = document.getElementById('browserFrame');
+        
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        setTimeout(() => { 
+            frame.src = 'about:blank'; 
+        }, 300);
+    }
+
+    function refreshBaiduBrowser() {
+        const frame = document.getElementById('browserFrame');
+        frame.src = frame.src;
+    }
+
+    // ========== Toast（底部中间）==========
     function showToast(text) {
         const toast = document.getElementById('toast');
         toast.innerHTML = text;
@@ -979,7 +987,7 @@
         setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    // 搜索功能
+    // ========== 搜索 ==========
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const val = e.target.value.toLowerCase();
         const btns = document.querySelectorAll('.big-button');
