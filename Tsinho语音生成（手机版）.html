@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#F2F2F7">
+    <title>Tsinho语音生成器</title>
+    <style>
+        :root {
+            --ios-blue: #007AFF;
+            --ios-green: #34C759;
+            --ios-red: #FF3B30;
+            --ios-bg: #F2F2F7;
+            --ios-card: rgba(255, 255, 255, 0.82);
+            --text-primary: #1c1c1e;
+            --text-secondary: #8E8E93;
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+            --safe-left: env(safe-area-inset-left);
+            --safe-right: env(safe-area-inset-right);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        /* 基础响应式设置 */
+        html {
+            font-size: clamp(14px, 2.5vw, 18px);
+        }
+
+        body {
+            background-color: var(--ios-bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 122, 255, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(175, 82, 222, 0.06) 0px, transparent 50%);
+            min-height: 100dvh;
+            min-height: 100vh; /* 回退 */
+            color: var(--text-primary);
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            background-attachment: fixed;
+            padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+        }
+
+        /* 主容器 - 自适应所有屏幕比例 */
+        .app-container {
+            width: min(100%, 800px);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(16px, 4vw, 40px);
+            gap: clamp(16px, 3vw, 32px);
+            position: relative;
+        }
+
+        /* 页眉 - 自适应缩放 */
+        .app-header {
+            text-align: center;
+            margin-bottom: clamp(8px, 2vh, 16px);
+            padding-top: clamp(8px, 2vh, 20px);
+        }
+
+        .app-title {
+            font-size: clamp(28px, 8vw, 56px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin-bottom: clamp(6px, 1.5vh, 12px);
+            background: linear-gradient(135deg, #1c1c1e, #3a3a3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .app-subtitle {
+            font-size: clamp(14px, 4vw, 20px);
+            color: var(--text-secondary);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* 主卡片 - 玻璃拟态效果 */
+        .main-card {
+            background: var(--ios-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: clamp(24px, 6vw, 40px);
+            padding: clamp(20px, 5vw, 36px);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(20px, 4vh, 32px);
+        }
+
+        /* 表单区块 */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 2vh, 20px);
+        }
+
+        .form-label {
+            font-size: clamp(16px, 4.5vw, 22px);
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label::before {
+            content: '';
+            width: 4px;
+            height: clamp(18px, 4vw, 24px);
+            background: var(--ios-blue);
+            border-radius: 2px;
+        }
+
+        /* 角色网格 - 自适应列数 */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(clamp(100px, 28vw, 140px), 1fr));
+            gap: clamp(10px, 2.5vw, 16px);
+            max-height: clamp(300px, 40vh, 450px);
+            overflow-y: auto;
+            padding: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 自定义滚动条 */
+        .character-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .character-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .character-grid::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.15);
+            border-radius: 3px;
+        }
+
+        .character-item {
+            background: rgba(118, 118, 128, 0.12);
+            border-radius: clamp(16px, 4vw, 24px);
+            padding: clamp(12px, 3vw, 20px) clamp(8px, 2vw, 12px);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            min-height: clamp(60px, 15vw, 80px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .character-item:active {
+            transform: scale(0.96);
+            background: rgba(118, 118, 128, 0.2);
+        }
+
+        .character-item.selected {
+            background: var(--ios-blue);
+            border-color: rgba(0, 86, 179, 0.5);
+            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.25);
+        }
+
+        .character-item .name {
+            font-size: clamp(13px, 3.5vw, 16px);
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .character-item.selected .name {
+            color: white;
+        }
+
+        .character-item .category {
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .character-item.selected .category {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* 文本输入区 - 自适应高度 */
+        .text-input-wrapper {
+            position: relative;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: clamp(120px, 25vh, 200px);
+            max-height: clamp(200px, 35vh, 300px);
+            padding: clamp(16px, 4vw, 24px);
+            background: rgba(118, 118, 128, 0.12);
+            border: 2px solid transparent;
+            border-radius: clamp(20px, 5vw, 28px);
+            font-size: clamp(15px, 4vw, 18px);
+            line-height: 1.6;
+            color: var(--text-primary);
+            resize: vertical;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .text-input:focus {
+            background: rgba(118, 118, 128, 0.18);
+            border-color: var(--ios-blue);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: clamp(12px, 3vw, 14px);
+            color: var(--text-secondary);
+            margin-top: 8px;
+            padding-right: 12px;
+            font-weight: 500;
+        }
+
+        /* 按钮组 - 自适应布局 */
+        .button-group {
+            display: flex;
+            gap: clamp(12px, 3vw, 20px);
+            margin-top: auto;
+        }
+
+        .btn {
+            flex: 1;
+            padding: clamp(14px, 4vw, 20px) clamp(20px, 5vw, 32px);
+            border-radius: clamp(16px, 4vw, 24px);
+            font-size: clamp(15px, 4vw, 18px);
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(8px, 2vw, 12px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            min-height: clamp(48px, 12vw, 56px);
+        }
+
+        .btn svg {
+            width: clamp(18px, 4.5vw, 24px);
+            height: clamp(18px, 4.5vw, 24px);
+            flex-shrink: 0;
+        }
+
+        .btn-primary {
+            background: var(--ios-blue);
+            color: white;
+            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+        }
+
+        .btn-secondary {
+            background: rgba(118, 118, 128, 0.12);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:active {
+            background: rgba(118, 118, 128, 0.2);
+            transform: scale(0.96);
+        }
+
+        .btn-loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: clamp(20px, 5vw, 24px);
+            height: clamp(20px, 5vw, 24px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 播放器卡片 */
+        .player-card {
+            background: var(--ios-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: clamp(24px, 6vw, 40px);
+            padding: clamp(20px, 5vw, 32px);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            display: none;
+            flex-direction: column;
+            gap: clamp(16px, 3vh, 24px);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .player-card.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: clamp(16px, 4vw, 24px);
+        }
+
+        .player-artwork {
+            width: clamp(56px, 14vw, 80px);
+            height: clamp(56px, 14vw, 80px);
+            background: linear-gradient(135deg, #5AC8FA, var(--ios-blue));
+            border-radius: clamp(16px, 4vw, 24px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(28px, 7vw, 40px);
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
+
+        .player-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .player-meta h3 {
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-meta p {
+            font-size: clamp(13px, 3.5vw, 15px);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .audio-container {
+            background: rgba(118, 118, 128, 0.12);
+            border-radius: clamp(16px, 4vw, 24px);
+            padding: clamp(12px, 3vw, 20px);
+            overflow: hidden;
+        }
+
+        audio {
+            width: 100%;
+            height: clamp(40px, 10vw, 54px);
+            display: block;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: clamp(14px, 4vw, 20px);
+            background: var(--ios-green);
+            color: white;
+            border-radius: clamp(16px, 4vw, 24px);
+            font-size: clamp(15px, 4vw, 18px);
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(8px, 2vw, 12px);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(52, 199, 89, 0.25);
+            min-height: clamp(48px, 12vw, 56px);
+        }
+
+        .download-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.2);
+        }
+
+        .download-btn svg {
+            width: clamp(18px, 4.5vw, 24px);
+            height: clamp(18px, 4.5vw, 24px);
+            flex-shrink: 0;
+        }
+
+        /* 错误提示 */
+        .error-hint {
+            background: rgba(255, 59, 48, 0.1);
+            border-radius: clamp(16px, 4vw, 20px);
+            padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 20px);
+            display: none;
+            align-items: center;
+            gap: clamp(10px, 2.5vw, 14px);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+        }
+
+        .error-hint.show {
+            display: flex;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .error-hint svg {
+            width: clamp(20px, 5vw, 24px);
+            height: clamp(20px, 5vw, 24px);
+            color: var(--ios-red);
+            flex-shrink: 0;
+        }
+
+        .error-hint span {
+            font-size: clamp(13px, 3.5vw, 15px);
+            color: var(--ios-red);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* Toast 提示 - 居中自适应 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: clamp(16px, 4vw, 24px) clamp(24px, 6vw, 40px);
+            border-radius: clamp(16px, 4vw, 24px);
+            font-size: clamp(14px, 4vw, 17px);
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            white-space: nowrap;
+            max-width: 90vw;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .toast.error {
+            background: rgba(255, 59, 48, 0.95);
+        }
+
+        /* 横屏/超宽屏优化 */
+        @media (min-aspect-ratio: 16/9) and (max-height: 600px) {
+            .app-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                max-width: 100%;
+                gap: 20px;
+            }
+            
+            .app-header {
+                width: 100%;
+                margin-bottom: 0;
+            }
+            
+            .main-card {
+                flex: 1;
+                min-width: 300px;
+                max-width: 50%;
+            }
+            
+            .player-card {
+                flex: 1;
+                min-width: 300px;
+                max-width: 45%;
+            }
+            
+            .character-grid {
+                max-height: 200px;
+            }
+            
+            .text-input {
+                min-height: 100px;
+            }
+        }
+
+        /* 小屏手机优化 */
+        @media (max-width: 380px) {
+            html {
+                font-size: 13px;
+            }
+            
+            .character-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 大屏桌面优化 */
+        @media (min-width: 1200px) {
+            body {
+                align-items: center;
+            }
+            
+            .app-container {
+                min-height: auto;
+                padding: 40px;
+            }
+        }
+
+        /* 折叠屏/特殊比例适配 */
+        @media (max-aspect-ratio: 9/16) {
+            /* 超长屏手机 */
+            .app-container {
+                justify-content: flex-start;
+            }
+        }
+
+        /* 禁用文本选择（移动端体验优化） */
+        @media (pointer: coarse) {
+            .character-item, .btn {
+                user-select: none;
+                -webkit-user-select: none;
+            }
+        }
+
+        /* 暗色模式支持 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --ios-bg: #000000;
+                --ios-card: rgba(28, 28, 30, 0.85);
+                --text-primary: #ffffff;
+                --text-secondary: #8E8E93;
+            }
+            
+            body {
+                background-image: 
+                    radial-gradient(at 0% 0%, rgba(0, 122, 255, 0.15) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(175, 82, 222, 0.15) 0px, transparent 50%);
+            }
+            
+            .character-item, .text-input, .btn-secondary {
+                background: rgba(118, 118, 128, 0.24);
+            }
+            
+            .text-input {
+                color: white;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 页眉 -->
+        <div class="app-header">
+            <h1 class="app-title">Tsinho语音生成器</h1>
+            <p class="app-subtitle">选择角色，输入文本，即刻生成 AI 语音</p>
+        </div>
+
+        <!-- 主卡片 -->
+        <div class="main-card">
+            <!-- 角色选择 -->
+            <div class="form-section">
+                <label class="form-label">配音角色</label>
+                <div class="character-grid" id="characterGrid"></div>
+            </div>
+
+            <!-- 文本输入 -->
+            <div class="form-section">
+                <label class="form-label">文本内容</label>
+                <div class="text-input-wrapper">
+                    <textarea class="text-input" id="textInput" placeholder="请输入要转换为语音的文本..." oninput="updateCharCount()"></textarea>
+                    <div class="char-count" id="charCount">0 字</div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="button-group">
+                <button class="btn btn-primary" id="generateBtn" onclick="generateVoice()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    生成语音
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    清空
+                </button>
+            </div>
+
+            <!-- 错误提示 -->
+            <div class="error-hint" id="errorHint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span id="errorText"></span>
+            </div>
+        </div>
+
+        <!-- 播放器卡片 -->
+        <div class="player-card" id="playerCard">
+            <div class="player-header">
+                <div class="player-artwork">🎵</div>
+                <div class="player-meta">
+                    <h3 id="playerTitle">角色名称</h3>
+                    <p id="playerSubtitle">生成完毕 · 点击播放</p>
+                </div>
+            </div>
+            <div class="audio-container">
+                <audio id="audioPlayer" controls></audio>
+            </div>
+            <a class="download-btn" id="downloadLink" href="#" download>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                下载音频
+            </a>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toastMsg"></span>
+    </div>
+
+    <script>
+        // 角色数据（保持原有数据）
+        const characters = [
+            { name: "知性女声", category: "热门推荐" },
+            { name: "紫薇", category: "影视角色" },
+            { name: "容嬷嬷", category: "影视角色" },
+            { name: "女儿国王", category: "影视角色" },
+            { name: "八戒", category: "影视角色" },
+            { name: "猴哥", category: "影视角色" },
+            { name: "皇上", category: "影视角色" },
+            { name: "黛玉", category: "影视角色" },
+            { name: "武则天", category: "影视角色" },
+            { name: "顾姐", category: "影视角色" },
+            { name: "TVB女声", category: "影视角色" },
+            { name: "译制片男", category: "影视角色" },
+            { name: "佩奇猪", category: "动漫角色" },
+            { name: "樱桃丸子", category: "动漫角色" },
+            { name: "懒小羊", category: "动漫角色" },
+            { name: "熊二", category: "动漫角色" },
+            { name: "小魔童", category: "动漫角色" },
+            { name: "动漫海绵", category: "动漫角色" },
+            { name: "动漫小新", category: "动漫角色" },
+            { name: "萌娃", category: "动漫角色" },
+            { name: "小女孩", category: "动漫角色" },
+            { name: "新闻男声", category: "专业配音" },
+            { name: "新闻女声", category: "专业配音" },
+            { name: "纪录片解说", category: "专业配音" },
+            { name: "广告男声", category: "专业配音" },
+            { name: "促销男声", category: "专业配音" },
+            { name: "商务殷语", category: "专业配音" },
+            { name: "知识讲解", category: "专业配音" },
+            { name: "京腔", category: "方言特色" },
+            { name: "粤语男声", category: "方言特色" },
+            { name: "天津小哥", category: "方言特色" },
+            { name: "河南大叔", category: "方言特色" },
+            { name: "西安掌柜", category: "方言特色" },
+            { name: "台湾男生", category: "方言特色" },
+            { name: "台湾女生", category: "方言特色" },
+            { name: "东北老铁", category: "方言特色" },
+            { name: "重庆小伙", category: "方言特色" },
+            { name: "广西表哥", category: "方言特色" },
+            { name: "快板", category: "特色风格" },
+            { name: "单口相声", category: "特色风格" },
+            { name: "说唱小哥", category: "特色风格" },
+            { name: "心灵鸡汤", category: "特色风格" },
+            { name: "童话解说", category: "特色风格" },
+            { name: "网文解说", category: "特色风格" },
+            { name: "悬疑解说", category: "特色风格" },
+            { name: "电竞解说", category: "特色风格" },
+            { name: "赛事解说", category: "特色风格" },
+            { name: "乒乓解说", category: "特色风格" },
+            { name: "游戏解说男", category: "特色风格" },
+            { name: "动漫解说", category: "特色风格" },
+            { name: "舌尖解说", category: "特色风格" },
+            { name: "解说小帅", category: "特色风格" },
+            { name: "甜美解说", category: "特色风格" },
+            { name: "沉稳解说", category: "特色风格" },
+            { name: "娱乐扒妹", category: "特色风格" },
+            { name: "小品艺术家", category: "特色风格" },
+            { name: "咆哮哥", category: "特色风格" },
+            { name: "樱花小哥", category: "特色风格" },
+            { name: "甜美悦悦", category: "特色风格" },
+            { name: "强势妹", category: "特色风格" },
+            { name: "理智姐", category: "特色风格" },
+            { name: "心机御姐", category: "特色风格" },
+            { name: "上海阿姨", category: "特色风格" },
+            { name: "老婆婆", category: "特色风格" },
+            { name: "古风男主", category: "特色风格" },
+            { name: "霸总", category: "特色风格" },
+            { name: "雅痞大叔", category: "特色风格" },
+            { name: "亲切女声", category: "特色风格" },
+            { name: "温柔淑女", category: "特色风格" },
+            { name: "文艺女声", category: "特色风格" },
+            { name: "少儿故事", category: "特色风格" },
+            { name: "小姐姐", category: "特色风格" },
+            { name: "阳光男生", category: "特色风格" },
+            { name: "歌唱女王", category: "歌唱类" },
+            { name: "歌唱达人", category: "歌唱类" },
+            { name: "情歌王", category: "歌唱类" },
+            { name: "摇滚男生", category: "歌唱类" },
+            { name: "甜美女孩", category: "歌唱类" },
+            { name: "激扬男声", category: "歌唱类" },
+            { name: "春节甜妹", category: "歌唱类" },
+            { name: "春日甜妹", category: "歌唱类" },
+            { name: "清新歌手", category: "歌唱类" },
+            { name: "水果舞曲", category: "歌唱类" },
+            { name: "康康舞曲", category: "歌唱类" },
+            { name: "康定情歌", category: "歌唱类" }
+        ];
+
+        let currentSelection = null;
+        const failedCharacters = new Set();
+
+        // 初始化
+        function init() {
+            renderCharacterGrid();
+            
+            // 检测屏幕比例变化并自动调整
+            window.addEventListener('resize', handleResize);
+            handleResize(); // 初始检测
+            
+            // 检测设备类型优化交互
+            detectDevice();
+        }
+
+        // 渲染角色网格
+        function renderCharacterGrid() {
+            const grid = document.getElementById('characterGrid');
+            grid.innerHTML = '';
+
+            characters.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'character-item';
+                div.innerHTML = `
+                    <span class="name">${item.name}</span>
+                    <span class="category">${item.category}</span>
+                `;
+                div.onclick = () => selectCharacter(item, div);
+                grid.appendChild(div);
+            });
+        }
+
+        // 选择角色
+        function selectCharacter(item, element) {
+            if (failedCharacters.has(item.name)) {
+                showToast(`"${item.name}" 暂时不可用`, true);
+                return;
+            }
+
+            document.querySelectorAll('.character-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+
+            element.classList.add('selected');
+            currentSelection = item;
+            hideError();
+            showToast(`已选择 "${item.name}"`);
+        }
+
+        // 更新字数
+        function updateCharCount() {
+            const len = document.getElementById('textInput').value.length;
+            document.getElementById('charCount').textContent = `${len} 字`;
+        }
+
+        // 清空
+        function clearAll() {
+            document.getElementById('textInput').value = '';
+            updateCharCount();
+            hidePlayer();
+            hideError();
+            currentSelection = null;
+            document.querySelectorAll('.character-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+            showToast('已清空');
+        }
+
+        // 隐藏播放器
+        function hidePlayer() {
+            document.getElementById('playerCard').classList.remove('active');
+            const audio = document.getElementById('audioPlayer');
+            audio.pause();
+            audio.src = '';
+        }
+
+        // 显示错误
+        function showError(msg) {
+            const hint = document.getElementById('errorHint');
+            document.getElementById('errorText').textContent = msg;
+            hint.classList.add('show');
+        }
+
+        // 隐藏错误
+        function hideError() {
+            document.getElementById('errorHint').classList.remove('show');
+        }
+
+        // 显示Toast
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.className = isError ? 'toast error show' : 'toast show';
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 生成语音
+        async function generateVoice() {
+            const text = document.getElementById('textInput').value.trim();
+
+            if (!currentSelection) {
+                showError('请先选择一个配音角色');
+                return;
+            }
+
+            if (!text) {
+                showError('请输入要转换的文本内容');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtn');
+            btn.classList.add('btn-loading');
+            btn.disabled = true;
+
+            try {
+                const apiUrl = `https://api.milorapart.top/apis/AIvoice/?text=${encodeURIComponent(text)}&speaker=${encodeURIComponent(currentSelection.name)}`;
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                
+                const response = await fetch(apiUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+
+                if (data.code === 200 && data.url && data.url.trim() !== '') {
+                    const audio = document.getElementById('audioPlayer');
+                    audio.src = data.url;
+                    document.getElementById('playerTitle').textContent = currentSelection.name;
+                    document.getElementById('playerSubtitle').textContent = '生成完毕 · 点击播放';
+                    document.getElementById('downloadLink').href = data.url;
+                    document.getElementById('downloadLink').download = `voice_${currentSelection.name}_${Date.now()}.mp3`;
+                    document.getElementById('playerCard').classList.add('active');
+
+                    hideError();
+                    showToast('语音生成成功！');
+                    
+                    // 滚动到播放器（移动端体验优化）
+                    setTimeout(() => {
+                        document.getElementById('playerCard').scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'nearest' 
+                        });
+                    }, 100);
+                } else if (data.code === 400 || data.code === 404 || data.msg) {
+                    throw new Error(data.msg || '该角色暂时不可用');
+                } else {
+                    throw new Error('未返回有效的音频地址');
+                }
+
+            } catch (error) {
+                if (currentSelection && error.message.includes('不可用')) {
+                    failedCharacters.add(currentSelection.name);
+                }
+                showError(`生成失败: ${error.message}`);
+                showToast('生成失败，请重试', true);
+            } finally {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+            }
+        }
+
+        // 屏幕比例自适应处理
+        function handleResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const ratio = width / height;
+            const container = document.querySelector('.app-container');
+            
+            // 根据比例动态调整（已大部分通过CSS处理，此处做额外逻辑）
+            if (ratio > 2) {
+                // 超宽屏（如折叠屏展开）
+                container.style.maxWidth = '100%';
+            } else if (ratio < 0.5) {
+                // 超长屏
+                container.style.padding = '12px';
+            } else {
+                // 正常比例
+                container.style.maxWidth = '';
+                container.style.padding = '';
+            }
+            
+            // 动态调整字体基准
+            const baseSize = Math.min(width / 25, height / 40, 18);
+            document.documentElement.style.fontSize = `${Math.max(14, baseSize)}px`;
+        }
+
+        // 设备检测与优化
+        function detectDevice() {
+            const isTouch = window.matchMedia('(pointer: coarse)').matches;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isTouch || isMobile) {
+                // 移动端优化：防止双击缩放
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', (e) => {
+                    const now = Date.now();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, false);
+                
+                // iOS 键盘处理
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    document.addEventListener('focusin', (e) => {
+                        if (e.target.tagName === 'TEXTAREA') {
+                            setTimeout(() => {
+                                e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }, 300);
+                        }
+                    });
+                }
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
