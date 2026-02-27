@@ -325,25 +325,51 @@
             transform: scale(0.98); 
         }
 
-        /* ===== 弹窗系统 ===== */
+        /* ===== 版权区域 ===== */
+        .copyright-footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #8E8E93;
+        }
+        
+        .copyright-footer a {
+            color: var(--ios-blue);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 10px;
+            transition: all var(--transition-fast);
+        }
+        
+        .copyright-footer a:hover {
+            opacity: 0.8;
+        }
+
+        /* ===== 弹窗系统 - iOS风格动画 ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0);
             align-items: center;
             justify-content: center;
             padding: 20px;
             z-index: 9999;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.25s ease;
+            transition: background 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        -webkit-backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             display: flex;
         }
         
         .modal-overlay.active { 
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             opacity: 1; 
             visibility: visible; 
             pointer-events: auto;
@@ -355,15 +381,32 @@
             max-width: 600px;
             border-radius: 35px;
             padding: 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            box-shadow: 0 25px 50px rgba(0,0,0,0);
             max-height: 85vh;
             overflow-y: auto;
-            transform: scale(0.9);
-            transition: transform 0.25s ease;
+            transform: scale(0.5) translateY(100px);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
         .modal-overlay.active .modal-content {
-            transform: scale(1);
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .modal-overlay.closing {
+            background: rgba(0,0,0,0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+        
+        .modal-overlay.closing .modal-content {
+            transform: scale(0.5) translateY(100px);
+            opacity: 0;
+            box-shadow: 0 25px 50px rgba(0,0,0,0);
         }
 
         .modal-header-title {
@@ -968,6 +1011,10 @@
             <i class="fas fa-info-circle"></i> 查看详细信息
         </button>
     </div>
+
+    <div class="copyright-footer">
+        © Tsinho · <a href="https://link3.cc/xakjyxgs" target="_blank" rel="noopener noreferrer">官网</a>
+    </div>
 </div>
 
 <!-- 弹窗结构保持不变，样式已通过CSS适配 -->
@@ -996,11 +1043,11 @@
                     <div class="list-text-sub">1625862774</div>
                 </div>
             </div>
-            <div class="ios-list-item" onclick="go('https://qm.qq.com/q/SSzmcxNYQO')">
+            <div class="ios-list-item" onclick="openQQGroupModal()">
                 <div class="list-icon purple"><i class="fas fa-users"></i></div>
                 <div>
                     <div class="list-text-main">官方群聊</div>
-                    <div class="list-text-sub">1065975237</div>
+                    <div class="list-text-sub">点击查看所有群聊</div>
                 </div>
             </div>
             <div class="ios-list-item" onclick="openDisclaimerModal()">
@@ -1114,6 +1161,35 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="qqGroupModal" onclick="closeQQGroupModal(event)" role="dialog" aria-modal="true">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header-title">官方QQ群</div>
+        <div class="ios-list">
+            <div class="ios-list-item" onclick="go('https://qm.qq.com/q/Fi6djpbJCY')">
+                <div class="list-icon purple"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="list-text-main">砖站群</div>
+                    <div class="list-text-sub">群号：1065975237</div>
+                </div>
+            </div>
+            <div class="ios-list-item" onclick="go('https://qm.qq.com/q/3yTAp3yuVq')">
+                <div class="list-icon blue"><i class="fas fa-comments"></i></div>
+                <div>
+                    <div class="list-text-main">Tsinho软件园</div>
+                    <div class="list-text-sub">群号：906813427</div>
+                </div>
+            </div>
+            <div class="ios-list-item" onclick="go('https://qm.qq.com/q/bWoDGE3Sdq')">
+                <div class="list-icon green"><i class="fas fa-folder-open"></i></div>
+                <div>
+                    <div class="list-text-main">Tsinho资源库</div>
+                    <div class="list-text-sub">群号：1081159850</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="toast" role="alert" aria-live="polite">
     <i id="toast-icon" class="fas fa-check-circle"></i>
     <div id="toast-text"></div>
@@ -1176,8 +1252,13 @@
         const modal = document.getElementById(modalId);
         if (!modal) return;
         
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
+        modal.classList.add('closing');
+        
+        setTimeout(() => {
+            modal.classList.remove('active');
+            modal.classList.remove('closing');
+            document.body.style.overflow = '';
+        }, 300);
     }
 
     function closeAboutModal(e) { 
@@ -1195,6 +1276,9 @@
     function closeLaoSiJiModal(e) { 
         if(e.target === e.currentTarget) closeModalById('laoSiJiModal');
     }
+    function closeQQGroupModal(e) { 
+        if(e.target === e.currentTarget) closeModalById('qqGroupModal');
+    }
 
     function openAboutModal() { openModalGeneric('aboutModal'); }
     function openDisclaimerModal() { openModalGeneric('disclaimerModal'); }
@@ -1204,6 +1288,7 @@
         resetPasswordAuth();
     }
     function openLaoSiJiModal() { openModalGeneric('laoSiJiModal'); }
+    function openQQGroupModal() { openModalGeneric('qqGroupModal'); }
 
     // ===== 链接跳转 =====
     function go(url) {
@@ -1454,7 +1539,7 @@
         // ESC键关闭弹窗
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                ['aboutModal', 'disclaimerModal', 'allResModal', 'baiduModal', 'laoSiJiModal'].forEach(id => {
+                ['aboutModal', 'disclaimerModal', 'allResModal', 'baiduModal', 'laoSiJiModal', 'qqGroupModal'].forEach(id => {
                     closeModalById(id);
                 });
             }
