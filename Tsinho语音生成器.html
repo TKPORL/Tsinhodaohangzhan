@@ -6,7 +6,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>Tsinho语音生成器</title>
+    <title>语音生成器</title>
     <style>
         :root {
             --ios-blue: #007AFF;
@@ -351,6 +351,166 @@
             height: clamp(24px, 4vw, 40px);
         }
 
+        /* 历史记录 */
+        .history-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 70px;
+            padding: 50px;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            margin-top: 40px;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .history-title {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 700;
+            color: #1c1c1e;
+        }
+
+        .history-clear-btn {
+            font-size: clamp(16px, 2.5vw, 28px);
+            color: #FF3B30;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.25s;
+        }
+
+        .history-clear-btn:hover {
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            padding: 25px;
+            background: rgba(118, 118, 128, 0.12);
+            border-radius: 35px;
+            margin-bottom: 20px;
+            transition: all 0.25s;
+        }
+
+        .history-item:hover {
+            background: rgba(118, 118, 128, 0.2);
+        }
+
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-audio-btn {
+            width: 60px;
+            height: 60px;
+            background: #007AFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.25s;
+        }
+
+        .history-audio-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(0, 122, 255, 0.3);
+        }
+
+        .history-audio-btn.playing {
+            background: #FF3B30;
+        }
+
+        .history-audio-btn svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-character {
+            font-size: clamp(18px, 3vw, 30px);
+            font-weight: 600;
+            color: #1c1c1e;
+            margin-bottom: 5px;
+        }
+
+        .history-text {
+            font-size: clamp(14px, 2.5vw, 24px);
+            color: #8E8E93;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-time {
+            font-size: clamp(14px, 2.5vw, 24px);
+            color: #a1a1a6;
+            margin-bottom: 10px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .history-action-btn {
+            padding: 12px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: clamp(14px, 2.5vw, 24px);
+            font-weight: 600;
+            transition: all 0.25s;
+        }
+
+        .history-download-btn {
+            background: #34C759;
+            color: white;
+        }
+
+        .history-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
+        }
+
+        .history-delete-btn {
+            background: rgba(255, 59, 48, 0.1);
+            color: #FF3B30;
+        }
+
+        .history-delete-btn:hover {
+            background: rgba(255, 59, 48, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 60px;
+            color: #8E8E93;
+            font-size: clamp(18px, 3vw, 30px);
+        }
+
         /* 错误提示 */
         .error-hint {
             background: rgba(255, 59, 48, 0.1);
@@ -408,6 +568,88 @@
             background: rgba(255, 59, 48, 0.95);
         }
 
+        /* 关于区域 */
+        .about-section {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 70px;
+            padding: 50px;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .about-title {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 700;
+            color: #1c1c1e;
+            margin-bottom: 30px;
+        }
+
+        .about-info-box {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: clamp(18px, 3vw, 30px);
+            color: #8E8E93;
+        }
+
+        .info-row i {
+            color: #007AFF;
+            width: 36px;
+            text-align: center;
+        }
+
+        .about-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .about-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 25px;
+            font-size: clamp(18px, 3vw, 28px);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 25px rgba(0, 122, 255, 0.25);
+        }
+
+        .about-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 122, 255, 0.35);
+        }
+
+        .copyright-text {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(118, 118, 128, 0.12);
+            font-size: clamp(16px, 2.5vw, 26px);
+            color: #8E8E93;
+        }
+
+        .copyright-text strong {
+            color: #007AFF;
+            font-weight: 700;
+        }
+
         /* 响应式 */
         @media (max-width: 768px) {
             .app-container {
@@ -438,6 +680,23 @@
                 flex-direction: column;
                 text-align: center;
             }
+
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .history-actions {
+                width: 100%;
+            }
+
+            .history-action-btn {
+                flex: 1;
+            }
+
+            .about-links {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -445,7 +704,7 @@
     <div class="app-container">
         <!-- 页眉 -->
         <div class="app-header">
-            <h1 class="app-title">Tsinho语音生成器</h1>
+            <h1 class="app-title">语音生成器</h1>
             <p class="app-subtitle">选择角色，输入文本，即刻生成自然流畅的 AI 语音</p>
         </div>
 
@@ -502,7 +761,7 @@
                 </div>
             </div>
             <div class="audio-container">
-                <audio id="audioPlayer" controls></audio>
+                <audio id="audioPlayer" controls>
             </div>
             <a class="download-btn" id="downloadLink" href="#" download>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -512,6 +771,38 @@
                 </svg>
                 下载音频
             </a>
+        </div>
+
+        <!-- 历史记录卡片 -->
+        <div class="history-card">
+            <div class="history-header">
+                <div class="history-title">📜 历史记录</div>
+                <button class="history-clear-btn" onclick="clearHistory()">清空记录</button>
+            </div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+
+        <!-- 关于区域 -->
+        <div class="about-section">
+            <div class="about-title">关于 <span style="color: #007AFF;">Tsinho语音生成器</span></div>
+            <div class="about-info-box">
+                <div class="info-row">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>由 Tsinho 独立维护并提供安全支持</span>
+                </div>
+                <div class="info-row">
+                    <i class="fas fa-microphone"></i>
+                    <span>基于AI技术，提供高质量语音合成服务</span>
+                </div>
+            </div>
+            <div class="about-links">
+                <a href="https://link3.cc/xakjyxgs" target="_blank" class="about-link" rel="noopener noreferrer">
+                    <i class="fas fa-globe"></i> 官网
+                </a>
+            </div>
+            <div class="copyright-text">
+                © Tsinho · 保留所有权利
+            </div>
         </div>
     </div>
 
@@ -613,10 +904,12 @@
 
         let currentSelection = null;
         const failedCharacters = new Set();
+        let currentPlayingAudio = null;
 
         // 初始化
         function init() {
             renderCharacterGrid();
+            renderHistory();
         }
 
         // 渲染角色网格
@@ -702,6 +995,134 @@
             }, 2000);
         }
 
+        // 保存到历史记录
+        function saveToHistory(character, text, audioUrl) {
+            const history = getHistory();
+            const record = {
+                id: Date.now().toString(),
+                character: character,
+                text: text,
+                audioUrl: audioUrl,
+                time: new Date().toLocaleString('zh-CN')
+            };
+            
+            history.unshift(record);
+            
+            if (history.length > 20) {
+                history.pop();
+            }
+            
+            localStorage.setItem('voiceGeneratorHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        // 获取历史记录
+        function getHistory() {
+            const stored = localStorage.getItem('voiceGeneratorHistory');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            const history = getHistory();
+            const list = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                list.innerHTML = '<div class="empty-history">暂无历史记录</div>';
+                return;
+            }
+            
+            list.innerHTML = history.map(record => `
+                <div class="history-item">
+                    <div class="history-audio-btn" onclick="toggleHistoryAudio('${record.id}', '${record.audioUrl}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                    </div>
+                    <div class="history-info">
+                        <div class="history-character">${record.character}</div>
+                        <div class="history-text">${record.text}</div>
+                        <div class="history-time">${record.time}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="history-action-btn history-download-btn" onclick="downloadHistoryAudio('${record.audioUrl}', '${record.character}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;display:inline-block;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            下载
+                        </button>
+                        <button class="history-action-btn history-delete-btn" onclick="deleteHistoryItem('${record.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;display:inline-block;">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 播放/暂停历史记录音频
+        function toggleHistoryAudio(id, audioUrl) {
+            const btn = document.querySelector(`.history-audio-btn`);
+            
+            if (currentPlayingAudio && currentPlayingAudio.id !== id) {
+                currentPlayingAudio.audio.pause();
+                currentPlayingAudio.btn.classList.remove('playing');
+            }
+            
+            if (!currentPlayingAudio || currentPlayingAudio.id !== id) {
+                const audio = new Audio(audioUrl);
+                audio.onended = () => {
+                    btn.classList.remove('playing');
+                    currentPlayingAudio = null;
+                };
+                
+                audio.play().then(() => {
+                    btn.classList.add('playing');
+                    currentPlayingAudio = { id, audio, btn };
+                }).catch(() => {
+                    showToast('播放失败', true);
+                });
+            } else {
+                currentPlayingAudio.audio.pause();
+                btn.classList.remove('playing');
+                currentPlayingAudio = null;
+            }
+        }
+
+        // 下载历史记录音频
+        function downloadHistoryAudio(url, character) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `voice_${character}_${Date.now()}.mp3`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('下载开始');
+        }
+
+        // 删除历史记录项
+        function deleteHistoryItem(id) {
+            let history = getHistory();
+            history = history.filter(item => item.id !== id);
+            localStorage.setItem('voiceGeneratorHistory', JSON.stringify(history));
+            renderHistory();
+            showToast('已删除');
+        }
+
+        // 清空历史记录
+        function clearHistory() {
+            if (confirm('确定要清空所有历史记录吗？')) {
+                localStorage.removeItem('voiceGeneratorHistory');
+                renderHistory();
+                showToast('已清空');
+            }
+        }
+
         // 生成语音
         async function generateVoice() {
             const text = document.getElementById('textInput').value.trim();
@@ -748,6 +1169,8 @@
                     document.getElementById('downloadLink').download = `voice_${currentSelection.name}_${Date.now()}.mp3`;
                     document.getElementById('playerCard').classList.add('active');
 
+                    saveToHistory(currentSelection.name, text, data.url);
+
                     hideError();
                     showToast('语音生成成功！');
                 } else if (data.code === 400 || data.code === 404 || data.msg) {
@@ -771,5 +1194,6 @@
         // 页面加载完成后初始化
         window.onload = init;
     </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </body>
 </html>
